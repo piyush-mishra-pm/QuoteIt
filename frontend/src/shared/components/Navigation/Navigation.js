@@ -24,13 +24,11 @@ function Navigation(props) {
     return (
         <React.Fragment>
             {sideDrawerOpen && <Backdrop onClick={closeSideDrawerHandler} />}
-            {sideDrawerOpen && (
-                <SideDrawer>
-                    <nav className="navigation__drawer-nav">
-                        <NavLinks />
-                    </nav>
-                </SideDrawer>
-            )}
+            <SideDrawer show={sideDrawerOpen} onClick={closeSideDrawerHandler}>
+                <nav className="navigation__drawer-nav">
+                    <NavLinks />
+                </nav>
+            </SideDrawer>
             <NavHeader>
                 <button className="navigation__menu-btn" onClick={openSideDrawerHandler}>
                     <span />
