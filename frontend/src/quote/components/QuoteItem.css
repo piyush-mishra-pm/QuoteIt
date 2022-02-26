@@ -48,6 +48,11 @@
   margin: 0.5rem;
 }
 
+.quote-comments-container{
+  height: 15rem;
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   .quote-item__image {
     height: 20rem;
