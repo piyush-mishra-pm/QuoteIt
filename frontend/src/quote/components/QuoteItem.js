@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Card from '../../shared/components/UIElements/Card';
+import Button from '../../shared/components/FormElements/Button';
 
 import './QuoteItem.css';
 
@@ -18,10 +19,10 @@ function QuoteItem(props) {
                     <p>{props.description}</p>
                 </div>
                 <div className="quote-item__actions">
-                    <button>Like</button>
-                    <button>Comment</button>
-                    <button>Edit</button>
-                    <button>Delete</button>
+                    <Button inverse>Like</Button>
+                    <Button inverse>Comment</Button>
+                    <Button to={`/places/${props.id}`}>Edit</Button>
+                    <Button danger>Delete</Button>
                 </div>
             </Card>
         </li>
