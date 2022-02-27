@@ -5,7 +5,7 @@ import {useParams} from 'react-router-dom';
 import QuoteList from '../components/QuoteList';
 
 // Dummy Data:
-const DUMMY_PLACES = [
+const DUMMY_QUOTES = [
   {
     key:'q1',
     id:'q1',
@@ -29,7 +29,7 @@ const DUMMY_PLACES = [
 ];
 function UserQuotes () {
   const userId = useParams().userId;
-  const loadedQuotes = DUMMY_PLACES.filter(quote=> quote.creatorId === userId);
+  const loadedQuotes = DUMMY_QUOTES.filter(quote=> quote.creatorId === userId);
   return <QuoteList items={loadedQuotes} />;
 }
 

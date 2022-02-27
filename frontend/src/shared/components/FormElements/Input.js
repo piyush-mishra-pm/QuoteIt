@@ -43,9 +43,9 @@ function Input(props) {
     // Validity depends on value, hence to simpilfy dependent state logics,
     // I use useReducer (and not useState).
     const [inputState, dispatchFn] = useReducer(inputReducer, {
-        value: '',
+        value: props.value,
         isTouched: false,
-        isValid: false,
+        isValid: props.valid || false,
     });
 
     // Object destructuring of props and inputState helps us use these

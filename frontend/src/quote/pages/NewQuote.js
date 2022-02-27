@@ -4,7 +4,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import * as Validators from '../../shared/util/validators';
 
-import './NewQuote.css';
+import './QuoteForm.css';
 
 function formReducer(state, action) {
     switch (action.type) {
@@ -61,8 +61,13 @@ function NewQuote(){
         });
     }, []);
 
+    function quoteSubmitHandler(e){
+        e.preventDefault();
+        console.log(formState.inputs);
+    }
+
     return (
-        <form className="quote-form">
+        <form className="quote-form" onSubmit={quoteSubmitHandler}>
             <Input
                 id="quote"
                 element="input"
@@ -85,6 +90,8 @@ function NewQuote(){
                 errorText="Reflection needs to be between 5 to 500 characters."
                 placeholder="Write your relfection on the quote here!"
             />
+
+            {/* Quote related Image needed. */}
 
             {/* Submit button active only when if input form fields are valid. */}
             <Button type="submit" disabled={!formState.isValid}>

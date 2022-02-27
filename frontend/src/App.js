@@ -9,6 +9,7 @@ import {
 import Users from './user/pages/Users';
 import UserQuotes from './quote/pages/UserQuotes';
 import NewQuote from './quote/pages/NewQuote';
+import UpdateQuote from './quote/pages/UpdateQuote';
 import Navigation from './shared/components/Navigation/Navigation';
 
 const App = () => {
@@ -25,6 +26,10 @@ const App = () => {
                   </Route>
                   <Route path="/quotes/new" exact>
                       <NewQuote />
+                  </Route>
+                  {/* '/quotes/new' route needs to come before '/quotes/:quoteId' */}
+                  <Route path="/quotes/:quoteId" exact>
+                      <UpdateQuote />
                   </Route>
                   <Redirect to="/" />
               </Switch>
