@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 
 import { validate } from '../../util/validators';
 
@@ -48,6 +48,14 @@ function Input(props) {
         isValid: false,
     });
 
+    // Object destructuring of props and inputState helps us use these
+    // as dependencies for useEffect, while still not causing infinite loop.
+    const {id, onInput} = props;
+    const {value, isValid} = inputState;
+    useEffect(()=>{
+        onInput(id , value, isValid)
+    },[id, onInput, value, isValid]);
+
     function inputChangeHandler(e) {
         dispatchFn({
             type: 'CHANGE',
@@ -76,7 +84,7 @@ function Input(props) {
                 value={inputState.value}
             />
         );
-    } else if (props.element === 'text') {
+    } else if (props.element === 'textarea') {
         element = (
             <textarea
                 id={props.id}
