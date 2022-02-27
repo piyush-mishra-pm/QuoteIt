@@ -7,15 +7,28 @@ import Modal from '../../shared/components/UIElements/Modal';
 import './QuoteItem.css';
 
 function QuoteItem(props) {
-    
-    const [showComments, setShowComments] = useState(false);
+    const [showCommentsModal, setShowCommentsModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     function openCommentsHandler() {
-        setShowComments(true);
+        setShowCommentsModal(true);
     }
 
     function closeCommentsHandler() {
-        setShowComments(false);
+        setShowCommentsModal(false);
+    }
+
+    function showDeleteModalHandler(){
+        setShowDeleteModal(true);
+    }
+
+    function cancelDeleteHandler() {
+        setShowDeleteModal(false);
+    }
+
+    function confirmDeleteHandler(){
+        setShowDeleteModal(false);
+        console.log('DELETING...');
     }
 
     return (
@@ -23,7 +36,7 @@ function QuoteItem(props) {
             {/* Comments Modal (Rendered in separate Portal).
                 Shows comments on the associated Quote-Item. */}
             <Modal
-                show={showComments}
+                show={showCommentsModal}
                 onCancel={closeCommentsHandler}
                 header={props.quote}
                 contentClass="quote-item__modal-content"
@@ -33,6 +46,23 @@ function QuoteItem(props) {
                 <div className="quote-comments-container">
                     <h2>Comments list goes here.</h2>
                 </div>
+            </Modal>
+
+            {/* Confirm Delete Modal (Rendered in separate Portal).
+                Confirms whether user really wishes to delete quote. */}
+            <Modal
+                show={showDeleteModal}
+                onCancel={cancelDeleteHandler}
+                header="Sure?"
+                footerClass="quote-item__modal-actions"
+                footer={
+                    <React.Fragment>
+                        <Button inverse onClick={cancelDeleteHandler}>CANCEL</Button>
+                        <Button danger onClick={confirmDeleteHandler}>DELETE</Button>
+                    </React.Fragment>
+                }
+            >
+                <p>Sure you want to delete this quote? Its irreversible.</p>
             </Modal>
 
             {/* Quote Item */}
@@ -53,11 +83,10 @@ function QuoteItem(props) {
                             Show Comments
                         </Button>
                         <Button to={`/quotes/${props.id}`}>Edit</Button>
-                        <Button danger>Delete</Button>
+                        <Button danger onClick={showDeleteModalHandler}>Delete</Button>
                     </div>
                 </Card>
             </li>
-            
         </React.Fragment>
     );
 }

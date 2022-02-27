@@ -2,6 +2,7 @@ import React from 'react';
 
 import Card from '../../shared/components/UIElements/Card';
 import QuoteItem from './QuoteItem';
+import Button from '../../shared/components/FormElements/Button';
 
 import './QuoteList.css';
 
@@ -12,7 +13,7 @@ function QuoteList(props) {
             <div className="quote-list center">
                 <Card>
                     <h2>No quotes yet. Want to create one?</h2>
-                    <button>Share Quote</button>
+                    <Button to="/quotes/new">Add a Quote</Button>
                 </Card>
             </div>
         );

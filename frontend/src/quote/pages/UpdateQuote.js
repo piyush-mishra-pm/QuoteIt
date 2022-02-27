@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
+import Card from '../../shared/components/UIElements/Card';
 
 import './QuoteForm.css';
 
@@ -35,28 +36,49 @@ const DUMMY_QUOTES = [
 ];
 
 function UpdateQuote() {
-    const quoteId = useParams().quoteId;
-    const foundQuote = DUMMY_QUOTES.find(q => q.id === quoteId);
+    const [isLoading, setIsLoading] = useState(true);
+    const quoteId = useParams().quoteId;    
 
-    const [formState, inputHandler] = useForm(
+    const [formState, inputHandler, setFormData] = useForm(
         {
             quote: {
-                value: foundQuote.quote,
-                isValid: true,
+                value: '',
+                isValid: false,
             },
             description: {
-                value: foundQuote.description,
-                isValid: true,
+                value: '',
+                isValid: false,
             },
         },
-        true
+        false
     );
 
+    const foundQuote = DUMMY_QUOTES.find(q => q.id === quoteId);
+    useEffect(() => {
+        if(foundQuote){
+            setFormData(
+                {
+                    quote: {
+                        value: foundQuote.quote,
+                        isValid: true,
+                    },
+                    description: {
+                        value: foundQuote.description,
+                        isValid: true,
+                    },
+                },
+                true
+            );
+        }
+        setIsLoading(false);
+    }, [setFormData, foundQuote]);
 
     if (!foundQuote) {
         return (
             <div className="center">
-                <h2>Could not find the quote.</h2>
+                <Card>
+                    <h2>Could not find the quote.</h2>
+                </Card>
             </div>
         );
     }
@@ -65,6 +87,15 @@ function UpdateQuote() {
         e.preventDefault();
         console.log(formState.inputs);
     }
+
+    if(isLoading){
+        return (
+            <div className="center">
+                <h2>Loading...</h2>
+            </div>
+        );
+    }
+
     return (
         <form className="quote-form" onSubmit={formSubmitHandler}>
             <Input
