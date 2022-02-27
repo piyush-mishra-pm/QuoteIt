@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import * as Validators from '../../shared/util/validators';
+import useForm from '../../shared/hooks/form-hook';
 
 import './QuoteForm.css';
 
@@ -36,6 +37,22 @@ const DUMMY_QUOTES = [
 function UpdateQuote() {
     const quoteId = useParams().quoteId;
     const foundQuote = DUMMY_QUOTES.find(q => q.id === quoteId);
+
+    const [formState, inputHandler] = useForm(
+        {
+            quote: {
+                value: foundQuote.quote,
+                isValid: true,
+            },
+            description: {
+                value: foundQuote.description,
+                isValid: true,
+            },
+        },
+        true
+    );
+
+
     if (!foundQuote) {
         return (
             <div className="center">
@@ -43,8 +60,13 @@ function UpdateQuote() {
             </div>
         );
     }
+
+    function formSubmitHandler(e){
+        e.preventDefault();
+        console.log(formState.inputs);
+    }
     return (
-        <form className="quote-form">
+        <form className="quote-form" onSubmit={formSubmitHandler}>
             <Input
                 id="quote"
                 element="input"
@@ -52,21 +74,21 @@ function UpdateQuote() {
                 label="Quote"
                 validators={[Validators.REQUIRE()]}
                 errorText="Please enter a non empty quote"
-                onInput={() => {}}
-                value={foundQuote.quote}
-                valid={true}
+                onInput={inputHandler}
+                initialValue={formState.inputs.quote.value}
+                initialValid={formState.inputs.quote.isValid}
             />
             <Input
                 id="description"
                 element="textarea"
                 label="Your Reflection"
                 validators={[Validators.MINLENGTH(5), Validators.MAXLENGTH(500)]}
-                errorText="Please enter a reflection, between 5 to 200 characters long."
-                onInput={() => {}}
-                value={foundQuote.description}
-                valid={true}
+                errorText="Please enter a reflection, between 5 to 500 characters long."
+                onInput={inputHandler}
+                initialValue={formState.inputs.description.value}
+                initialValid={formState.inputs.description.isValid}
             />
-            <Button type="submit" disabled={true}>
+            <Button type="submit" disabled={!formState.isValid}>
                 Update Quote
             </Button>
         </form>
