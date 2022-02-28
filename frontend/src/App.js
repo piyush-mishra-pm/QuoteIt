@@ -11,6 +11,7 @@ import UserQuotes from './quote/pages/UserQuotes';
 import NewQuote from './quote/pages/NewQuote';
 import UpdateQuote from './quote/pages/UpdateQuote';
 import Navigation from './shared/components/Navigation/Navigation';
+import Auth from './user/pages/Auth';
 
 const App = () => {
   return (
@@ -28,8 +29,11 @@ const App = () => {
                       <NewQuote />
                   </Route>
                   {/* '/quotes/new' route needs to come before '/quotes/:quoteId' */}
-                  <Route path="/quotes/:quoteId" exact>
+                  <Route path="/quotes/:quoteId">
                       <UpdateQuote />
+                  </Route>
+                  <Route path="/auth">
+                      <Auth />
                   </Route>
                   <Redirect to="/" />
               </Switch>
