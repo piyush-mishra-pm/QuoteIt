@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import Card from '../../shared/components/UIElements/Card';
 import Button from '../../shared/components/FormElements/Button';
 import Modal from '../../shared/components/UIElements/Modal';
+import {AuthContext} from '../../shared/context/auth-context';
 
 import './QuoteItem.css';
 
 function QuoteItem(props) {
+    const auth = useContext(AuthContext);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -78,12 +80,12 @@ function QuoteItem(props) {
                         <p>{props.description}</p>
                     </div>
                     <div className="quote-item__actions">
-                        <Button inverse>Like</Button>
+                        {auth.isLoggedIn && <Button inverse>Like</Button>}
                         <Button inverse onClick={openCommentsHandler}>
                             Show Comments
                         </Button>
-                        <Button to={`/quotes/${props.id}`}>Edit</Button>
-                        <Button danger onClick={showDeleteModalHandler}>Delete</Button>
+                        {auth.isLoggedIn && <Button to={`/quotes/${props.id}`}>Edit</Button>}
+                        {auth.isLoggedIn && <Button danger onClick={showDeleteModalHandler}>Delete</Button>}
                     </div>
                 </Card>
             </li>

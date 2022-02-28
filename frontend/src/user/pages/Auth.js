@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import Card from '../../shared/components/UIElements/Card';
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
+import {AuthContext} from '../../shared/context/auth-context';
 
 import './Auth.css';
 
 function Auth() {
+    const auth = useContext(AuthContext);
+
     // We are either in Login mode or in Sign up mode.
     const [isLoginMode, setIsLogInMode] = useState(true);
 
@@ -29,6 +32,7 @@ function Auth() {
     function authSubmitHandler(e) {
         e.preventDefault();
         console.log(formState.inputs);
+        auth.login();
     }
 
     // Toggles between Login and Signup modes.
