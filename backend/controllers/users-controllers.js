@@ -18,7 +18,7 @@ const DUMMY_USERS = [
         id: 'u1',
         name: 'Lorem Ipsum',
         image: 'https://images.pexels.com/photos/236149/pexels-photo-236149.jpeg?auto=compress&cs=tinysrgb&h=130',
-        quoteCount: '1',
+        quoteCount: '1',// SHould remove? As it is derived property.
         email: 'test@test.com',
         password: 'testers',
     },

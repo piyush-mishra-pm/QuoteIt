@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const SECRET_KEYS = require('./config/SECRET_KEYS.js');
 
 const quotesRoutes = require('./routes/quotes-routes');
 const usersRoutes = require('./routes/users-routes');
@@ -25,4 +27,11 @@ app.use((error, req, res, next) => {
     res.json({ message: error.message || 'An unknown error occurred!' });
 });
 
-app.listen(4000);
+mongoose
+    .connect(SECRET_KEYS.MONGODB_ADDRESS)
+    .then(() => {
+        app.listen(4000);
+    })
+    .catch(err=>{
+        console.log(err);
+    });

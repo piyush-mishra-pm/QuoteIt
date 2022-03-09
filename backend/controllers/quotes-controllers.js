@@ -2,6 +2,7 @@ const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
 
 const ErrorObject = require('../util/error-object');
+const Quote = require('../models/quote');
 /*
 let DUMMY_QUOTES = [
     {
@@ -43,61 +44,76 @@ let DUMMY_QUOTES = [
 ];
 
 // GET: api/v1/quotes/:quoteId
-const getQuoteById = (req, res, next) => {
+const getQuoteById = async (req, res, next) => {
     const quoteId = req.params.quoteId;
 
-    const quote = DUMMY_QUOTES.find(q => {
-        return q.id === quoteId;
-    });
+    try{
+        const quote = await Quote.findById(quoteId);
 
-    if (!quote) {
-        throw new ErrorObject('Could not find requested quote.', 404);
+        if (!quote) {
+            return next(new ErrorObject('No such quote exists.', 404));
+        }
+
+        return res.json({ quote : quote.toObject({getters:true}) });
+
+    }catch(err){
+        return next(new ErrorObject('Something went wrong, could not find the Quote.', 500));
     }
-
-    res.json({ quote });
 };
 
-const getQuotesByUserId = (req, res, next) => {
+const getQuotesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
 
-    const quotes = DUMMY_QUOTES.filter(q => {
-        return q.creatorId === userId;
-    });
+    // TODO: paginate the results by using cursor.
+    let quotes;
+    try{
+        quotes = await Quote.find({ creatorId: userId });
+    }catch(err){
+        return next(new ErrorObject('Something went wrong, could not find the user Quotes.', 500));
+    }
 
     if (!quotes || quotes.length === 0) {
         return next(new ErrorObject('No quotes found for the user.', 404));
     }
 
-    res.json({ quotes });
+    res.json({ quotes : quotes.map(quote => quote.toObject({getters:true})) });
 };
 
-const getAllQuotes =(req, res, next) => {
-    res.json(DUMMY_QUOTES);
+const getAllQuotes =async(req, res, next) => {
+    // TODO: Paginate quotes:
+    try{
+        const allQuotes = await Quote.find({});
+        return res.json(allQuotes.map(quote => quote.toObject({getters:true})));
+    }
+    catch(err){
+        return next(new ErrorObject('Something went wrong, could not find all Quotes.', 500));
+    }
 }
 
-const createQuote = (req, res, next) => {
+const createQuote = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         throw new ErrorObject('Invalid inputs!', 422);
     }
+    try{
+        const { quote, description, creatorId, image, authorName } = req.body;
 
-    const { quote, description, creatorId, image, authorName } = req.body;
+        const createdQuote = new Quote({
+            quote,
+            description,
+            creatorId: 'u1', // TODO: need to use the actual creatorId.
+            image,
+            authorName,
+        });
 
-    const createdQuote = {
-        id: uuid(),
-        quote,
-        description,
-        creatorId,
-        image,
-        authorName,
-    };
-
-    DUMMY_QUOTES.push(createdQuote);
-
-    res.status(201).json({ createdQuote });
+        await createdQuote.save();
+        return res.status(201).json({ createdQuote });
+    } catch (err) {
+        return next (new ErrorObject(`Failed creating quote: ${err}`, 500));
+    }
 };
 
-const updateQuote = (req, res, next) => {
+const updateQuote = async(req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         throw new ErrorObject('Invalid inputs!', 422);
@@ -106,33 +122,49 @@ const updateQuote = (req, res, next) => {
     const { quote, description, image, authorName } = req.body;
     const quoteId = req.params.quoteId;
 
-    const updatedQuote = { ...DUMMY_QUOTES.find(q => q.id === quoteId) };
-    const quoteIndex = DUMMY_QUOTES.findIndex(q => q.id === quoteId);
+    try{
+        let quoteToUpdate = await Quote.findById(quoteId);
 
-    if (!updatedQuote) {
-        throw new ErrorObject('Quote not found, cannot update the quote!', 404);
+        if (!quoteToUpdate) {
+            return next(new ErrorObject(
+                'Quote not found, cannot update the quote!',
+                404
+            ));
+        }
+
+        quoteToUpdate.quote = quote;
+        quoteToUpdate.description = description;
+        quoteToUpdate.authorName = authorName;
+        quoteToUpdate.image = image;
+
+        await quoteToUpdate.save();
+
+        return res.status(200).json({ quote: quoteToUpdate.toObject({getters:true}) });
+    }catch(err){
+        return next(new ErrorObject(`Something went wrong. Failed updating the quote: ${err}`, 500));
     }
-
-    updatedQuote.quote = quote;
-    updatedQuote.description = description;
-    updatedQuote.authorName = authorName;
-    updatedQuote.image = image;
-
-    DUMMY_QUOTES[quoteIndex] = updatedQuote;
-
-    res.status(200).json({ updatedQuote });
 };
 
-const deleteQuote = (req, res, next) => {
+const deleteQuote = async (req, res, next) => {
     const quoteId = req.params.quoteId;
-    if (!DUMMY_QUOTES.find(q => q.id === quoteId)) {
-        throw new ErrorObject(
-            'Quote not found, so cannot delete the quote.',
-            404
-        );
-    }
-    DUMMY_QUOTES = DUMMY_QUOTES.filter(q => q.id !== quoteId);
-    res.status(200).json({ message: 'Deleted quote.' });
+
+    try{
+        const quote = await Quote.findById(quoteId);
+
+        if(!quote){
+            return next(new ErrorObject(
+                'Quote not found, so cannot delete the quote.',
+                404
+            ));
+        }
+
+        await quote.remove();
+
+        return res.status(200).json({ message: 'Deleted quote.' });
+
+    }catch(err){
+        return next(new ErrorObject(`Something went wrong. Failed deleting the quote: ${err}`, 500));
+    }    
 };
 
 module.exports = {

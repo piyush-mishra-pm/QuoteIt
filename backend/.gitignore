@@ -9,6 +9,9 @@
 # production
 /build
 
+#config file
+/config/SECRET_KEYS.js
+
 # misc
 .DS_Store
 .env.local
