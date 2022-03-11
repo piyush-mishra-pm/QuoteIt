@@ -24,7 +24,7 @@ function UserList(props) {
                     id={user.id}
                     image={user.image}
                     name={user.name}
-                    quoteCount={user.quoteCount}
+                    quoteCount={user.quotes.length}
                 />
             ))
         }</ul>
