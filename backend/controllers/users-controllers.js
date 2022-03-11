@@ -63,12 +63,6 @@ const signup = async (req, res, next) => {
 
 const login = async (req, res, next) => {
     const { email, password } = req.body;
-/*
-    const identifiedUser = DUMMY_USERS.find(u => u.email === email);
-    if (!identifiedUser || identifiedUser.password !== password) {
-        throw new ErrorObject('Wrong credentials!', 401);
-    }
-*/
 
     try {
         const userWithEmail = await User.findOne({ email });
@@ -106,7 +100,6 @@ const login = async (req, res, next) => {
         );
     }
 
-    res.json({ message: 'Logged in!' });
 };
 
 module.exports = { getUsers, signup, login };

@@ -3,6 +3,8 @@ import React, { useState, useContext } from 'react';
 import Card from '../../shared/components/UIElements/Card';
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
 import {AuthContext} from '../../shared/context/auth-context';
@@ -14,6 +16,10 @@ function Auth() {
 
     // We are either in Login mode or in Sign up mode.
     const [isLoginMode, setIsLogInMode] = useState(true);
+
+    // Loading and Error states:
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
 
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -35,6 +41,7 @@ function Auth() {
         if(isLoginMode) {
 
         }else{
+            setIsLoading(true);
             // If in SignUp mode:
             try{
                 const response = await fetch(
@@ -53,13 +60,21 @@ function Auth() {
                 );
 
                 const data = await response.json();
-                console.log(data);
+
+                // If not OK status codes (not 200ish), then throw error.
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                setIsLoading(false);
+                auth.login();
             }catch(err){
                 console.error(err);
+                setIsLoading(false);
+                setError(err.message || 'Something went wrong!'); // Although there is always a default error message from backend.
             }
-        }
 
-        auth.login();
+        }
     }
 
     // Toggles between Login and Signup modes.
@@ -88,8 +103,15 @@ function Auth() {
         setIsLogInMode(mode => !mode);
     }
 
+    function clearErrorHandler(){
+        setError(null);
+    }
+
     return (
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearErrorHandler}/>
         <Card className="auth">
+            { isLoading && <LoadingSpinner asOverlay/> }
             <h2>Login needed!</h2>
             <hr />
             <form onSubmit={authSubmitHandler}>
@@ -130,6 +152,7 @@ function Auth() {
                 {isLoginMode ? 'Sign-Up' : 'Login'} instead
             </Button>
         </Card>
+        </React.Fragment>
     );
 }
 
