@@ -29,9 +29,36 @@ function Auth() {
         false
     );
 
-    function authSubmitHandler(e) {
+    async function authSubmitHandler(e) {
         e.preventDefault();
-        console.log(formState.inputs);
+
+        if(isLoginMode) {
+
+        }else{
+            // If in SignUp mode:
+            try{
+                const response = await fetch(
+                    'http://localhost:4000/api/v1/users/signup',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: formState.inputs.name.value,
+                            email: formState.inputs.email.value,
+                            password: formState.inputs.password.value,
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+                console.log(data);
+            }catch(err){
+                console.error(err);
+            }
+        }
+
         auth.login();
     }
 
