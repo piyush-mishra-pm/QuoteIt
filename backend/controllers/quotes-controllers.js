@@ -3,20 +3,8 @@ const { validationResult } = require('express-validator');
 
 const ErrorObject = require('../util/error-object');
 const Quote = require('../models/quote');
-/*
-let DUMMY_QUOTES = [
-    {
-        id: 'p1',
-        title: 'Empire State Building',
-        description: 'One of the most famous sky scrapers in the world!',
-        location: {
-            lat: 40.7484474,
-            lng: -73.9871516,
-        },
-        address: '20 W 34th St, New York, NY 10001',
-        creator: 'u1',
-    },
-];*/
+const User = require('../models/user');
+const mongoose = require('mongoose');
 
 let DUMMY_QUOTES = [
     {
@@ -65,18 +53,18 @@ const getQuotesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
 
     // TODO: paginate the results by using cursor.
-    let quotes;
+    let userQuotes;
     try{
-        quotes = await Quote.find({ creatorId: userId });
+        userQuotes = await User.findById(userId).populate('quotes');
     }catch(err){
         return next(new ErrorObject('Something went wrong, could not find the user Quotes.', 500));
     }
 
-    if (!quotes || quotes.length === 0) {
+    if (!userQuotes || userQuotes.quotes.length === 0) {
         return next(new ErrorObject('No quotes found for the user.', 404));
     }
 
-    res.json({ quotes : quotes.map(quote => quote.toObject({getters:true})) });
+    res.json({ quotes : userQuotes.quotes.map(quote => quote.toObject({getters:true})) });
 };
 
 const getAllQuotes =async(req, res, next) => {
@@ -93,21 +81,39 @@ const getAllQuotes =async(req, res, next) => {
 const createQuote = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        throw new ErrorObject('Invalid inputs!', 422);
+        return next(new ErrorObject('Invalid inputs!', 422));
     }
     try{
         const { quote, description, creatorId, image, authorName } = req.body;
 
+        // Only when the creator actually exists in DB, we can then create the quote.
+        const user = await User.findById(creatorId);
+
+        if(!user) {
+            return next(new ErrorObject('Could not find user for provided creatorId',404));
+        }
+        
+        // Creator does exist, so lets create the quote.
         const createdQuote = new Quote({
             quote,
             description,
-            creatorId: 'u1', // TODO: need to use the actual creatorId.
+            creatorId,
             image,
             authorName,
         });
 
-        await createdQuote.save();
-        return res.status(201).json({ createdQuote });
+        // User exists, so can do transaction & session involving:
+        // - create the quote.
+        // - Adding the quoteId in user's quote list.
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await createdQuote.save({session: sess});
+        user.quotes.push(createdQuote);
+        await user.save({session: sess});
+        await sess.commitTransaction();
+
+        return res.status(201).json({ quote:createdQuote });
+
     } catch (err) {
         return next (new ErrorObject(`Failed creating quote: ${err}`, 500));
     }
@@ -116,7 +122,7 @@ const createQuote = async (req, res, next) => {
 const updateQuote = async(req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        throw new ErrorObject('Invalid inputs!', 422);
+        return next (new ErrorObject('Invalid inputs!', 422));
     }
 
     const { quote, description, image, authorName } = req.body;
@@ -149,7 +155,7 @@ const deleteQuote = async (req, res, next) => {
     const quoteId = req.params.quoteId;
 
     try{
-        const quote = await Quote.findById(quoteId);
+        const quote = await Quote.findById(quoteId).populate('creatorId');
 
         if(!quote){
             return next(new ErrorObject(
@@ -158,7 +164,13 @@ const deleteQuote = async (req, res, next) => {
             ));
         }
 
-        await quote.remove();
+        //await quote.remove();
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await quote.remove({session:sess});
+        quote.creatorId.quotes.pull(quote);
+        await quote.creatorId.save({session:sess});
+        await sess.commitTransaction();
 
         return res.status(200).json({ message: 'Deleted quote.' });
 

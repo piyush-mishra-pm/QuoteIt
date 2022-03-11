@@ -2,16 +2,8 @@ const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
 
 const ErrorObject = require('../util/error-object');
-/*
-const DUMMY_USERS = [
-    {
-        id: 'u1',
-        name: 'Max Schwarz',
-        email: 'test@test.com',
-        password: 'testers',
-    },
-];
-*/
+const User = require('../models/user');
+
 // DUMMY User data:
 const DUMMY_USERS = [
     {
@@ -24,43 +16,94 @@ const DUMMY_USERS = [
     },
 ];
 
-const getUsers = (req, res, next) => {
-    res.json({ users: DUMMY_USERS });
+const getUsers = async(req, res, next) => {
+    try{
+        // TODO: Need to paginate user list.
+        const users = await User.find({}, '-password');
+        res.status(200).json({ users: users.map( user => user.toObject({getters:true}) ) });
+    }catch(err){
+        return next(new ErrorObject('Something went wring while fetching user list', 500));
+    }
 };
 
-const signup = (req, res, next) => {
+const signup = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        throw new ErrorObject('Invalid inputs!', 422);
+        return next (new ErrorObject('Invalid inputs!', 422));
     }
-    const { name, email, password } = req.body;
+    const { name, email, password, image } = req.body;
 
-    const hasUser = DUMMY_USERS.find(u => u.email === email);
-    if (hasUser) {
-        throw new ErrorObject(
-            'Email already exists, cannot create another one.',
-            422
-        );
+    try{
+
+        const existingUser = await User.findOne({ email });
+
+        if(existingUser){ 
+            return next(new ErrorObject(
+                'Email already exists. Could not Signup the user!',
+                404
+            ));
+        }
+
+        const createdUser = new User({
+            name,
+            email,
+            password,// TODO: Need to encrypt.
+            image:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
+            quotes:[]
+        });
+
+        await createdUser.save();
+
+        // TODO: response also exposes password. Need to remove password from response.
+        return res.status(201).json({ user: createdUser.toObject({getters:true}) });
+    }catch(err){
+        return next(new ErrorObject(`Something went wrong. Could not Signup the user! ${err}`, 500));
     }
-
-    const createdUser = {
-        id: uuid(),
-        name,
-        email,
-        password,
-    };
-
-    DUMMY_USERS.push(createdUser);
-
-    res.status(201).json({ user: createdUser });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
     const { email, password } = req.body;
-
+/*
     const identifiedUser = DUMMY_USERS.find(u => u.email === email);
     if (!identifiedUser || identifiedUser.password !== password) {
         throw new ErrorObject('Wrong credentials!', 401);
+    }
+*/
+
+    try {
+        const userWithEmail = await User.findOne({ email });
+        // userWith Email exists:
+        if (!userWithEmail) {
+            return next(
+                new ErrorObject(
+                    'Email or password incorrect. Try again.',
+                    401
+                )
+            );
+        }
+
+        // TODO: encrypt the password supplied so that can be compared to encrypted stored password.
+        
+        // password matches stored password.
+        if(userWithEmail.password !== password) {
+            return next(
+                new ErrorObject('Email or password incorrect. Try again.', 401)
+            );
+        }
+
+        // Email and password have matched. Can login.
+
+        // TODO: response also exposes password. Need to remove password from response.
+        return res
+            .status(200)
+            .json({ message: 'Logged in.'});
+    } catch (err) {
+        return next(
+            new ErrorObject(
+                `Something went wrong. Could not perform Login! ${err}`,
+                500
+            )
+        );
     }
 
     res.json({ message: 'Logged in!' });

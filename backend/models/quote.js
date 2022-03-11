@@ -9,7 +9,7 @@ const quoteSchema = new Schema({
     image: { type: String, required: true },
 
     // TODO: Make as Object-ID
-    creatorId: { type: String, required: true },
+    creatorId: { type: mongoose.Types.ObjectId, ref:'User', required: true },
 });
 
 module.exports = mongoose.model('Quote', quoteSchema);
