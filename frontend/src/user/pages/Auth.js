@@ -39,6 +39,35 @@ function Auth() {
         e.preventDefault();
 
         if(isLoginMode) {
+            // If in LogIn mode:
+            try {
+                const response = await fetch(
+                    'http://localhost:4000/api/v1/users/login',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: formState.inputs.email.value,
+                            password: formState.inputs.password.value,
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+
+                // If not OK status codes (not 200ish), then throw error.
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+
+                setIsLoading(false);
+                auth.login();
+            } catch (err) {
+                setIsLoading(false);
+                setError(err.message || 'Something went wrong!'); // Although there is always a default error message from backend.
+            }
 
         }else{
             setIsLoading(true);
@@ -69,7 +98,6 @@ function Auth() {
                 setIsLoading(false);
                 auth.login();
             }catch(err){
-                console.error(err);
                 setIsLoading(false);
                 setError(err.message || 'Something went wrong!'); // Although there is always a default error message from backend.
             }
