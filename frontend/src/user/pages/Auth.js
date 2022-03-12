@@ -7,6 +7,7 @@ import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
+import useHttpClient from '../../shared/hooks/http-hook';
 import {AuthContext} from '../../shared/context/auth-context';
 
 import './Auth.css';
@@ -17,9 +18,7 @@ function Auth() {
     // We are either in Login mode or in Sign up mode.
     const [isLoginMode, setIsLogInMode] = useState(true);
 
-    // Loading and Error states:
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState();
+    const {isLoading, error, sendRequest, clearErrorHandler} = useHttpClient();
 
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -40,68 +39,43 @@ function Auth() {
 
         if(isLoginMode) {
             // If in LogIn mode:
-            try {
-                const response = await fetch(
+            try{
+                await sendRequest(
                     'http://localhost:4000/api/v1/users/login',
+                    'POST',
+                    JSON.stringify({
+                        email: formState.inputs.email.value,
+                        password: formState.inputs.password.value,
+                    }),
                     {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            email: formState.inputs.email.value,
-                            password: formState.inputs.password.value,
-                        }),
+                        'Content-Type': 'application/json',
                     }
                 );
-
-                const data = await response.json();
-
-                // If not OK status codes (not 200ish), then throw error.
-                if (!response.ok) {
-                    throw new Error(data.message);
-                }
-
-                setIsLoading(false);
+                // Login in below line only triggers when above sendrequest has not thrown any error.
                 auth.login();
-            } catch (err) {
-                setIsLoading(false);
-                setError(err.message || 'Something went wrong!'); // Although there is always a default error message from backend.
+            }catch(err){
+                console.error('OUTSIDE',error);
             }
 
         }else{
-            setIsLoading(true);
             // If in SignUp mode:
             try{
-                const response = await fetch(
+                await sendRequest(
                     'http://localhost:4000/api/v1/users/signup',
+                    'POST',
+                    JSON.stringify({
+                        name: formState.inputs.name.value,
+                        email: formState.inputs.email.value,
+                        password: formState.inputs.password.value,
+                    }),
                     {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            name: formState.inputs.name.value,
-                            email: formState.inputs.email.value,
-                            password: formState.inputs.password.value,
-                        }),
+                        'Content-Type': 'application/json',
                     }
                 );
 
-                const data = await response.json();
-
-                // If not OK status codes (not 200ish), then throw error.
-                if (!response.ok) {
-                    throw new Error(data.message);
-                }
-
-                setIsLoading(false);
+                // Login in below line only triggers when above sendrequest has not thrown any error.
                 auth.login();
-            }catch(err){
-                setIsLoading(false);
-                setError(err.message || 'Something went wrong!'); // Although there is always a default error message from backend.
-            }
-
+            }catch(err){}
         }
     }
 
@@ -129,10 +103,6 @@ function Auth() {
             );
         }
         setIsLogInMode(mode => !mode);
-    }
-
-    function clearErrorHandler(){
-        setError(null);
     }
 
     return (

@@ -1,36 +1,42 @@
 import {useState, useCallback, useRef, useEffect} from 'react';
 
-function useHttpClient(){
+const useHttpClient=()=>{
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
     const activeHttpRequests = useRef([]); // Stores data across re-render cycles.
 
-    useCallback(async function sendRequest(url, method='GET', body=null, header={}){
-        try{
+    const sendRequest = useCallback(
+        async (url, method='GET', body=null, headers={})=>{
             setIsLoading(true);
 
             const httpAbortController = new AbortController();
             activeHttpRequests.current.push(httpAbortController);
+            
+            try{
 
-            const response = await fetch(url, {
-                method,
-                body,
-                headers,
-                signal:httpAbortController.signal
-            });
+                const response = await fetch(url, {
+                    method,
+                    body,
+                    headers,
+                    signal:httpAbortController.signal
+                });
 
-            const data = response.json();
+                const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.message);
+                activeHttpRequests.current = activeHttpRequests.current.filter(
+                    requestController => requestController !== httpAbortController
+                );
+
+                if (!response.ok) {                    
+                    throw new Error(data.message);
+                }
+                setIsLoading(false);
+                return data;
+            }catch(err){
+                setError(err.message || 'Something went wrong!'); // Default error message shouldn't be required, as backend has a default error message anyways.
+                setIsLoading(false);
+                throw err;
             }
-
-            return data;
-        }catch(err){
-            setError(err.message);
-        }
-
-        setIsLoading(false);
     }, []);
 
     function clearErrorHandler(){
@@ -38,13 +44,14 @@ function useHttpClient(){
     }
 
     // Runs when this element mounts.
-    useEffect(() =>{
-
-        // Returned Function: Runs a clean up logic when this element unmounts.
+    useEffect(() => {
         return () => {
-            activeHttpRequests.current.forEach(abortController => abortController.abort());
+            // Returned function: Runs a clean up logic when this element unmounts.
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort());
         };
     }, []);
+
 
     return {isLoading, error, sendRequest, clearErrorHandler};
 }
