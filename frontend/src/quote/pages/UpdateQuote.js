@@ -1,43 +1,25 @@
-import React, {useEffect, useState} from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useEffect, useState, useContext} from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
 import Card from '../../shared/components/UIElements/Card';
+import useHttpClient from '../../shared/hooks/http-hook';
+import {AuthContext} from '../../shared/context/auth-context';
 
 import './QuoteForm.css';
 
-// Dummy Data:
-const DUMMY_QUOTES = [
-    {
-        key: 'q1',
-        id: 'q1',
-        image: 'https://images.pexels.com/photos/296282/pexels-photo-296282.jpeg?auto=compress&cs=tinysrgb&h=350',
-        imgAltText: 'Freedom',
-        quote: 'Freedom is liberating1',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-        creatorId: 'u1',
-        authorName: 'Buddha',
-    },
-    {
-        key: 'q2',
-        id: 'q2',
-        image: 'https://images.pexels.com/photos/1319795/pexels-photo-1319795.jpeg?auto=compress&cs=tinysrgb&h=350',
-        imgAltText: 'Support',
-        quote: 'Support is reaffirming',
-        description:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-        creatorId: 'u1',
-        authorName: 'Mahatma Gandhi',
-    },
-];
-
 function UpdateQuote() {
-    const [isLoading, setIsLoading] = useState(true);
-    const quoteId = useParams().quoteId;    
+    const { isLoading, error, sendRequest, clearErrorHandler } =
+        useHttpClient();
+    const [loadedQuote, setLoadedQuote] = useState();
+    const quoteId = useParams().quoteId;
+    const history = useHistory();
+    const auth = useContext(AuthContext);
 
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -49,31 +31,58 @@ function UpdateQuote() {
                 value: '',
                 isValid: false,
             },
+            authorName: {
+                value: '',
+                isValid: true,
+            },
+            image: {
+                value: '',
+                isValid: true,
+            },
         },
         false
     );
 
-    const foundQuote = DUMMY_QUOTES.find(q => q.id === quoteId);
+    // Renders only once, when the component is mounted.
+    // Loads the lastest quote data from backend.
     useEffect(() => {
-        if(foundQuote){
-            setFormData(
-                {
-                    quote: {
-                        value: foundQuote.quote,
-                        isValid: true,
+        // IIFE:
+        (async () => {
+            try {
+                const responseData = await sendRequest(
+                    `http://localhost:4000/api/v1/quotes/${quoteId}`
+                );
+                setLoadedQuote(responseData.quote);
+                setFormData(
+                    {
+                        quote: {
+                            value: responseData.quote.quote,
+                            isValid: true,
+                        },
+                        description: {
+                            value: responseData.quote.description,
+                            isValid: true,
+                        },
+                        authorName: {
+                            value: responseData.quote.authorName,
+                            isValid: true,
+                        },
+                        image: {
+                            value: responseData.quote.image,
+                            isValid: true,
+                        },
                     },
-                    description: {
-                        value: foundQuote.description,
-                        isValid: true,
-                    },
-                },
-                true
-            );
-        }
-        setIsLoading(false);
-    }, [setFormData, foundQuote]);
+                    true
+                );
+            } catch (err) {}
+        })();
+    }, [sendRequest, quoteId, setFormData]);
 
-    if (!foundQuote) {
+    if(isLoading){
+        return <LoadingSpinner/>;
+    }
+
+    if (!loadedQuote && !error) {
         return (
             <div className="center">
                 <Card>
@@ -83,46 +92,91 @@ function UpdateQuote() {
         );
     }
 
-    function formSubmitHandler(e){
+    async function formSubmitHandler(e) {
         e.preventDefault();
-        console.log(formState.inputs);
-    }
+        try{
+            await sendRequest(
+                `http://localhost:4000/api/v1/quotes/${quoteId}`,
+                'PATCH',
+                JSON.stringify({
+                    quote: formState.inputs.quote.value,
+                    description: formState.inputs.description.value,
+                    image: formState.inputs.image.value,
+                    authorName: formState.inputs.authorName.value,
+                }),
+                {
+                    'Content-Type': 'application/json',
+                }
+            );
+            // Redirect, if correctly submitted the updated quote.
+            history.push(`/${auth.userId}/quotes`);
 
-    if(isLoading){
-        return (
-            <div className="center">
-                <h2>Loading...</h2>
-            </div>
-        );
+        }catch(err){}
+
     }
 
     return (
-        <form className="quote-form" onSubmit={formSubmitHandler}>
-            <Input
-                id="quote"
-                element="input"
-                type="text"
-                label="Quote"
-                validators={[Validators.REQUIRE()]}
-                errorText="Please enter a non empty quote"
-                onInput={inputHandler}
-                initialValue={formState.inputs.quote.value}
-                initialValid={formState.inputs.quote.isValid}
-            />
-            <Input
-                id="description"
-                element="textarea"
-                label="Your Reflection"
-                validators={[Validators.MINLENGTH(5), Validators.MAXLENGTH(500)]}
-                errorText="Please enter a reflection, between 5 to 500 characters long."
-                onInput={inputHandler}
-                initialValue={formState.inputs.description.value}
-                initialValid={formState.inputs.description.isValid}
-            />
-            <Button type="submit" disabled={!formState.isValid}>
-                Update Quote
-            </Button>
-        </form>
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearErrorHandler} />
+            {isLoading && <LoadingSpinner />}
+            {!isLoading && loadedQuote && (
+                <form className="quote-form" onSubmit={formSubmitHandler}>
+                    <Input
+                        id="quote"
+                        element="input"
+                        type="text"
+                        label="Quote"
+                        validators={[Validators.REQUIRE()]}
+                        errorText="Please enter a non empty quote"
+                        onInput={inputHandler}
+                        initialValue={loadedQuote.quote}
+                        initialValid={true}
+                    />
+                    <Input
+                        id="description"
+                        element="textarea"
+                        label="Your Reflection"
+                        validators={[
+                            Validators.MINLENGTH(5),
+                            Validators.MAXLENGTH(500),
+                        ]}
+                        errorText="Please enter a reflection, between 5 to 500 characters long."
+                        onInput={inputHandler}
+                        initialValue={loadedQuote.description}
+                        initialValid={true}
+                    />
+                    <Input
+                        id="authorName"
+                        element="input"
+                        label="Your Reflection"
+                        validators={[
+                            Validators.MINLENGTH(5),
+                            Validators.MAXLENGTH(100),
+                        ]}
+                        errorText="Name can be 100 chars long, or X mb in size."
+                        onInput={inputHandler}
+                        initialValue={loadedQuote.authorName}
+                        initialValid={true}
+                    />{/* TODO: Image upload support needed here. */}
+                    <Input
+                        id="image"
+                        element="input"
+                        label="Image url"
+                        validators={[
+                            Validators.MAXLENGTH(1000),
+                        ]}
+                        errorText="Img url can be 1000 chars long, or X mb in size."
+                        onInput={inputHandler}
+                        initialValue={loadedQuote.image}
+                        initialValid={true}
+                    />
+
+                    <Button type="submit" disabled={!formState.isValid}>
+                        Update Quote
+                    </Button>
+                </form>
+            )}
+        </React.Fragment>
     );
 }
 
