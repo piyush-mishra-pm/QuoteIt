@@ -1,13 +1,21 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import {useHistory} from 'react-router-dom';
 
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
+import useHttpClient from '../../shared/hooks/http-hook';
+import { AuthContext } from '../../shared/context/auth-context';
 
 import './QuoteForm.css';
 
 function NewQuote(){
+    const auth = useContext(AuthContext);
+
+    const {isLoading, sendRequest, error, clearErrorHandler } = useHttpClient();
 
     const [formState, inputHandler] = useForm(
         {
@@ -18,18 +26,50 @@ function NewQuote(){
             description: {
                 value: '',
                 isValid: false,
-            }
+            },
+            image: {
+                value: '',
+                isValid: false,
+            },
+            authorName: {
+                value: '',
+                isValid: false,
+            },
         },
         false
     );
 
-    function quoteSubmitHandler(e){
+    const history = useHistory();
+
+    async function quoteSubmitHandler(e){
         e.preventDefault();
-        console.log(formState.inputs);
+        try{
+            await sendRequest(
+                'http://localhost:4000/api/v1/quotes',
+                'POST',
+                JSON.stringify({
+                    quote: formState.inputs.quote.value,
+                    description: formState.inputs.description.value,
+                    creatorId: auth.userId,
+                    image: formState.inputs.image.value,
+                    authorName: formState.inputs.authorName.value,
+                }),
+                {
+                    'Content-Type': 'application/json',
+                }
+            );
+            // If successfully created, then redirect the user to home page.
+            history.push('/');
+        }catch(err){
+
+        }
     }
 
     return (
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearErrorHandler}/>
         <form className="quote-form" onSubmit={quoteSubmitHandler}>
+            {isLoading && <LoadingSpinner asOverlay />}
             <Input
                 id="quote"
                 element="input"
@@ -39,6 +79,16 @@ function NewQuote(){
                 onInput={inputHandler}
                 errorText="Please enter a valid Quote."
                 placeholder="Write Quote Here!"
+            />
+            <Input
+                id="authorName"
+                element="input"
+                label="Original Author of Quote"
+                type="text"
+                validators={[Validators.MAXLENGTH(100)]}
+                onInput={inputHandler}
+                errorText="Name can be 100 chars long, or X mb in size."
+                placeholder="(Optional) Whose quote is it?"
             />
             <Input
                 id="description"
@@ -53,13 +103,25 @@ function NewQuote(){
                 placeholder="Write your relfection on the quote here!"
             />
 
-            {/* Quote related Image needed. */}
+            {/* TODO: Image upload support needed here. */}
+            <Input
+                id="image"
+                element="input"
+                label="Image Url"
+                type="text"
+                validators={[Validators.MAXLENGTH(1000)]}
+                onInput={inputHandler}
+                errorText="Img url can be 1000 chars long, or X mb in size."
+                placeholder="(Optional) Enter image url here!"
+            />
 
-            {/* Submit button active only when if input form fields are valid. */}
+            {/* Submit button active only when if input form fields are valid. */}            
+            {/* TODO Bug: can't leave image and description as empty, as following submit button doesnot become active.*/}
             <Button type="submit" disabled={!formState.isValid}>
                 Add Quote
             </Button>
         </form>
+        </React.Fragment>
     );
 };
 

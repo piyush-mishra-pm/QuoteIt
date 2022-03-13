@@ -90,7 +90,10 @@ const login = async (req, res, next) => {
         // TODO: response also exposes password. Need to remove password from response.
         return res
             .status(200)
-            .json({ message: 'Logged in.'});
+            .json({
+                message: 'Logged in.',
+                user: userWithEmail.toObject({ getters: true }),
+            });
     } catch (err) {
         return next(
             new ErrorObject(

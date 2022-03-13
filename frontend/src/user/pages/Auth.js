@@ -40,7 +40,7 @@ function Auth() {
         if(isLoginMode) {
             // If in LogIn mode:
             try{
-                await sendRequest(
+                const data = await sendRequest(
                     'http://localhost:4000/api/v1/users/login',
                     'POST',
                     JSON.stringify({
@@ -51,16 +51,16 @@ function Auth() {
                         'Content-Type': 'application/json',
                     }
                 );
+
                 // Login in below line only triggers when above sendrequest has not thrown any error.
-                auth.login();
+                auth.login(data.user.id);
             }catch(err){
-                console.error('OUTSIDE',error);
             }
 
         }else{
             // If in SignUp mode:
             try{
-                await sendRequest(
+                const data = await sendRequest(
                     'http://localhost:4000/api/v1/users/signup',
                     'POST',
                     JSON.stringify({
@@ -74,7 +74,7 @@ function Auth() {
                 );
 
                 // Login in below line only triggers when above sendrequest has not thrown any error.
-                auth.login();
+                auth.login(data.user.id);
             }catch(err){}
         }
     }

@@ -19,7 +19,8 @@ router.post(
         check('quote').isLength({ max: 200 }),
         check('description').isLength({ min: 5 }),
         check('description').isLength({ max: 500 }),
-        check('image').isURL(),
+        // TODO: Add validation checks yet for Author name and Image.
+        
     ],
     quotesController.createQuote
 );
