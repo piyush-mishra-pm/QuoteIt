@@ -76,7 +76,6 @@ function QuoteItem(props) {
                     <div className="quote-item__info">
                         <h2>{props.quote}</h2>
                         <h3>{props.authorName}</h3>
-                        <h3>{props.creatorId}</h3>
                         <p>{props.description}</p>
                     </div>
                     <div className="quote-item__actions">

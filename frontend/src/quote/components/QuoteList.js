@@ -27,7 +27,7 @@ function QuoteList(props) {
                     key={quote.id}
                     id={quote.id}
                     image={quote.image}
-                    imgAltText={quote.imgAltText}
+                    imgAltText={quote.imgAltText||`image for ${quote.quote}`}
                     quote={quote.quote}
                     description={quote.description}
                     creatorId={quote.creatorId}
