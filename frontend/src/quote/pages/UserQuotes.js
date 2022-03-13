@@ -26,11 +26,15 @@ function UserQuotes() {
       })();
     }, [sendRequest, userId]);
 
+    function quoteDeleteHandler(deleteQuoteId){
+      setLoadedQuotes(prevQuotes=>prevQuotes.filter(quote => quote.id !== deleteQuoteId));
+    }
+
     return (
         <React.Fragment>
           <ErrorModal error={error} onClear={clearErrorHandler}/>
           {isLoading && <LoadingSpinner/>}
-            {!isLoading && loadedQuotes && <QuoteList items={loadedQuotes} />}
+            {!isLoading && loadedQuotes && <QuoteList items={loadedQuotes} onDeleteQuote={quoteDeleteHandler}/>}
         </React.Fragment>
     );
 }

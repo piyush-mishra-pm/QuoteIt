@@ -4,6 +4,9 @@ import Card from '../../shared/components/UIElements/Card';
 import Button from '../../shared/components/FormElements/Button';
 import Modal from '../../shared/components/UIElements/Modal';
 import {AuthContext} from '../../shared/context/auth-context';
+import useHttpClient from '../../shared/hooks/http-hook';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 
 import './QuoteItem.css';
 
@@ -11,6 +14,7 @@ function QuoteItem(props) {
     const auth = useContext(AuthContext);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const {isLoading, error, sendRequest, clearErrorHandler} = useHttpClient();
 
     function openCommentsHandler() {
         setShowCommentsModal(true);
@@ -28,13 +32,20 @@ function QuoteItem(props) {
         setShowDeleteModal(false);
     }
 
-    function confirmDeleteHandler(){
+    async function confirmDeleteHandler(){
         setShowDeleteModal(false);
-        console.log('DELETING...');
+        try{
+            await sendRequest(`http://localhost:4000/api/v1/quotes/${props.id}`,'DELETE');
+            props.onDelete(props.id);
+
+        }catch(err){
+
+        }
     }
 
     return (
         <React.Fragment>
+            <ErrorModal error={error} onClear={clearErrorHandler} />
             {/* Comments Modal (Rendered in separate Portal).
                 Shows comments on the associated Quote-Item. */}
             <Modal
@@ -70,6 +81,7 @@ function QuoteItem(props) {
             {/* Quote Item */}
             <li className="quote-item">
                 <Card className="quote-item__content">
+                    {isLoading && <LoadingSpinner/>}
                     <div className="quote-item__image">
                         <img src={props.image} alt={props.imgAltText} />
                     </div>

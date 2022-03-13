@@ -32,6 +32,7 @@ function QuoteList(props) {
                     description={quote.description}
                     creatorId={quote.creatorId}
                     authorName={quote.authorName}
+                    onDelete={props.onDeleteQuote}
                 />
             ))}
         </ul>
