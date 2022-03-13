@@ -95,8 +95,8 @@ function QuoteItem(props) {
                         <Button inverse onClick={openCommentsHandler}>
                             Show Comments
                         </Button>
-                        {auth.isLoggedIn && <Button to={`/quotes/${props.id}`}>Edit</Button>}
-                        {auth.isLoggedIn && <Button danger onClick={showDeleteModalHandler}>Delete</Button>}
+                        {auth.isLoggedIn && auth.userId === props.creatorId  && <Button to={`/quotes/${props.id}`}>Edit</Button>}
+                        {auth.isLoggedIn && auth.userId === props.creatorId && <Button danger onClick={showDeleteModalHandler}>Delete</Button>}
                     </div>
                 </Card>
             </li>
