@@ -130,7 +130,7 @@ function Auth() {
                         onInput={inputHandler}
                     />
                 )}
-                {!isLoginMode && <ImagePicker center id="image" onInput={inputHandler} />}
+                {!isLoginMode && <ImagePicker center id="image" onInput={inputHandler} errorText="Please upload a Avatar image."/>}
                 <Input
                     element="input"
                     id="email"

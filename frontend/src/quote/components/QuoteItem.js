@@ -83,7 +83,7 @@ function QuoteItem(props) {
                 <Card className="quote-item__content">
                     {isLoading && <LoadingSpinner/>}
                     <div className="quote-item__image">
-                        <img src={props.image} alt={props.imgAltText} />
+                        <img src={`http://localhost:4000/${props.image}`} alt={props.imgAltText} />
                     </div>
                     <div className="quote-item__info">
                         <h2>{props.quote}</h2>

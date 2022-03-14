@@ -158,7 +158,7 @@ function UpdateQuote() {
                         initialValue={loadedQuote.authorName}
                         initialValid={true}
                     />{/* TODO: Image upload support needed here. */}
-                    <Input
+                    {/*<Input
                         id="image"
                         element="input"
                         label="Image url"
@@ -169,7 +169,7 @@ function UpdateQuote() {
                         onInput={inputHandler}
                         initialValue={loadedQuote.image}
                         initialValid={true}
-                    />
+                    />*/}
 
                     <Button type="submit" disabled={!formState.isValid}>
                         Update Quote

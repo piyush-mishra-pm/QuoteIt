@@ -5,6 +5,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ImagePicker from '../../shared/components/FormElements/ImagePicker';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
 import useHttpClient from '../../shared/hooks/http-hook';
@@ -28,7 +29,7 @@ function NewQuote(){
                 isValid: false,
             },
             image: {
-                value: '',
+                value: null,
                 isValid: false,
             },
             authorName: {
@@ -44,19 +45,16 @@ function NewQuote(){
     async function quoteSubmitHandler(e){
         e.preventDefault();
         try{
+            const formData = new FormData();
+            formData.append('quote', formState.inputs.quote.value);
+            formData.append('description', formState.inputs.description.value);
+            formData.append('creatorId', auth.userId);
+            formData.append('authorName', formState.inputs.authorName.value);
+            formData.append('image', formState.inputs.image.value);
             await sendRequest(
                 'http://localhost:4000/api/v1/quotes',
                 'POST',
-                JSON.stringify({
-                    quote: formState.inputs.quote.value,
-                    description: formState.inputs.description.value,
-                    creatorId: auth.userId,
-                    image: formState.inputs.image.value,
-                    authorName: formState.inputs.authorName.value,
-                }),
-                {
-                    'Content-Type': 'application/json',
-                }
+                formData
             );
             // If successfully created, then redirect the user to home page.
             history.push('/');
@@ -103,16 +101,10 @@ function NewQuote(){
                 placeholder="Write your relfection on the quote here!"
             />
 
-            {/* TODO: Image upload support needed here. */}
-            <Input
-                id="image"
-                element="input"
-                label="Image Url"
-                type="text"
-                validators={[Validators.MAXLENGTH(1000)]}
-                onInput={inputHandler}
-                errorText="Img url can be 1000 chars long, or X mb in size."
-                placeholder="(Optional) Enter image url here!"
+            <ImagePicker 
+                id="image" 
+                onInput={inputHandler} 
+                errorText="Please upload a relevant image."
             />
 
             {/* Submit button active only when if input form fields are valid. */}            
