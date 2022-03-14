@@ -9,6 +9,9 @@
 # production
 /build
 
+# uploads:
+/uploads
+
 #config file
 /config/SECRET_KEYS.js
 

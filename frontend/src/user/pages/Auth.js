@@ -5,6 +5,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ImagePicker from '../../shared/components/FormElements/ImagePicker';
 import * as Validators from '../../shared/util/validators';
 import useForm from '../../shared/hooks/form-hook';
 import useHttpClient from '../../shared/hooks/http-hook';
@@ -60,17 +61,17 @@ function Auth() {
         }else{
             // If in SignUp mode:
             try{
+
+                const formData = new FormData();
+                formData.append('name', formState.inputs.name.value);
+                formData.append('email', formState.inputs.email.value);
+                formData.append('password', formState.inputs.password.value);
+                formData.append('image',formState.inputs.image.value);
+
                 const data = await sendRequest(
                     'http://localhost:4000/api/v1/users/signup',
                     'POST',
-                    JSON.stringify({
-                        name: formState.inputs.name.value,
-                        email: formState.inputs.email.value,
-                        password: formState.inputs.password.value,
-                    }),
-                    {
-                        'Content-Type': 'application/json',
-                    }
+                    formData
                 );
 
                 // Login in below line only triggers when above sendrequest has not thrown any error.
@@ -85,7 +86,8 @@ function Auth() {
             setFormData(
                 { 
                     ...formState.inputs,
-                    name: undefined 
+                    name: undefined ,
+                    image: undefined ,
                 },
                 formState.inputs.email.isValid &&
                     formState.inputs.password.isValid
@@ -96,6 +98,10 @@ function Auth() {
                     ...formState.inputs,
                     name: {
                         value: '',
+                        isValid: false,
+                    },
+                    image: {
+                        value: null,
                         isValid: false,
                     },
                 },
@@ -124,6 +130,7 @@ function Auth() {
                         onInput={inputHandler}
                     />
                 )}
+                {!isLoginMode && <ImagePicker center id="image" onInput={inputHandler} />}
                 <Input
                     element="input"
                     id="email"
