@@ -61,7 +61,7 @@ const createQuote = async (req, res, next) => {
         return next(new ErrorObject('Invalid inputs!', 422));
     }
     try{
-        const { quote, description, creatorId, image, authorName } = req.body;
+        const { quote, description, creatorId, authorName } = req.body;
 
         // Only when the creator actually exists in DB, we can then create the quote.
         const user = await User.findById(creatorId);
@@ -74,8 +74,8 @@ const createQuote = async (req, res, next) => {
         const createdQuote = new Quote({
             quote,
             description,
-            creatorId,
-            image:req.file.path,
+            creatorId : req.userData.userId,
+            image : req.file.path,
             authorName,
         });
 
@@ -115,6 +115,17 @@ const updateQuote = async(req, res, next) => {
             ));
         }
 
+        // is the creator the same as the authenticated user.
+        // So prevent a authenticated user which is not the creator of the quote.
+        if (quoteToUpdate.creatorId.toString() !== req.userData.userId) {
+            return next(
+                new ErrorObject(
+                    'You are not the creator of this quote. Unauthorized request.',
+                    401
+                )
+            );
+        }
+
         quoteToUpdate.quote = quote;
         quoteToUpdate.description = description;
         quoteToUpdate.authorName = authorName;
@@ -134,30 +145,42 @@ const deleteQuote = async (req, res, next) => {
     try{
         const quote = await Quote.findById(quoteId).populate('creatorId');
 
-        if(!quote){
-            return next(new ErrorObject(
-                'Quote not found, so cannot delete the quote.',
-                404
-            ));
+        if (!quote) {
+            return next(
+                new ErrorObject(
+                    'Quote not found, so cannot delete the quote.',
+                    404
+                )
+            );
         }
 
-        const quoteImagePath = quote.image;     
-        
+        // is the creator the same as the authenticated user.
+        // So prevent a authenticated user which is not the creator of the quote.
+        if (quote.creatorId.id !== req.userData.userId) {
+            return next(
+                new ErrorObject(
+                    'You are not the creator of this quote. Unauthorized request.',
+                    401
+                )
+            );
+        }
+
+        const quoteImagePath = quote.image;
+
         const sess = await mongoose.startSession();
         sess.startTransaction();
-        await quote.remove({session:sess});
+        await quote.remove({ session: sess });
         quote.creatorId.quotes.pull(quote);
-        await quote.creatorId.save({session:sess});
+        await quote.creatorId.save({ session: sess });
         await sess.commitTransaction();
 
-        fs.unlink(quoteImagePath, err=>{
-            if(err) {
-                console.log('Error while deleting Image file. : ',err);
+        fs.unlink(quoteImagePath, err => {
+            if (err) {
+                console.log('Error while deleting Image file. : ', err);
             }
         });
 
         return res.status(200).json({ message: 'Deleted quote.' });
-
     }catch(err){
         return next(new ErrorObject(`Something went wrong. Failed deleting the quote: ${err}`, 500));
     }    
