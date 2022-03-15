@@ -1,8 +1,10 @@
 const express = require('express');
 const { check } = require('express-validator');
 
+
 const quotesController = require('../controllers/quotes-controllers');
 const imageUpload = require('../middleware/image-upload');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -11,6 +13,8 @@ router.get('/all', quotesController.getAllQuotes);
 router.get('/:quoteId', quotesController.getQuoteById);
 
 router.get('/user/:userId', quotesController.getQuotesByUserId);
+
+router.use(authMiddleware);
 
 router.post(
     '/',

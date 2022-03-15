@@ -54,7 +54,7 @@ function Auth() {
                 );
 
                 // Login in below line only triggers when above sendrequest has not thrown any error.
-                auth.login(data.user.id);
+                auth.login(data.userId, data.token);
             }catch(err){
             }
 
@@ -75,7 +75,7 @@ function Auth() {
                 );
 
                 // Login in below line only triggers when above sendrequest has not thrown any error.
-                auth.login(data.user.id);
+                auth.login(data.userId, data.token);
             }catch(err){}
         }
     }

@@ -1,20 +1,10 @@
-const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const ErrorObject = require('../util/error-object');
 const User = require('../models/user');
-
-// DUMMY User data:
-const DUMMY_USERS = [
-    {
-        id: 'u1',
-        name: 'Lorem Ipsum',
-        image: 'https://images.pexels.com/photos/236149/pexels-photo-236149.jpeg?auto=compress&cs=tinysrgb&h=130',
-        quoteCount: '1',// SHould remove? As it is derived property.
-        email: 'test@test.com',
-        password: 'testers',
-    },
-];
+const SECRET_KEYS = require('../config/SECRET_KEYS.js');
 
 const getUsers = async(req, res, next) => {
     try{
@@ -44,18 +34,21 @@ const signup = async (req, res, next) => {
             ));
         }
 
+        let encryptedPassword = await bcrypt.hash(password, SECRET_KEYS.BCRYPT_SALT_ROUNDS);
+
         const createdUser = new User({
             name,
             email,
-            password,// TODO: Need to encrypt.
-            image:req.file.path,
+            password: encryptedPassword,
+            image: req.file.path,
             quotes:[]
         });
 
         await createdUser.save();
 
-        // TODO: response also exposes password. Need to remove password from response.
-        return res.status(201).json({ user: createdUser.toObject({getters:true}) });
+        const token = jwt.sign({ userId: createdUser.id, email: createdUser.email}, SECRET_KEYS.JWT_SECRET_KEY, {expiresIn:'1h'});
+
+        return res.status(201).json({ userId:createdUser.id, token:token, email:createdUser.email });
     }catch(err){
         return next(new ErrorObject(`Something went wrong. Could not Signup the user! ${err}`, 500));
     }
@@ -77,22 +70,28 @@ const login = async (req, res, next) => {
         }
 
         // TODO: encrypt the password supplied so that can be compared to encrypted stored password.
+        let ifPasswordMatches = await bcrypt.compare(password, userWithEmail.password);
         
         // password matches stored password.
-        if(userWithEmail.password !== password) {
+        if(!ifPasswordMatches) {
             return next(
                 new ErrorObject('Email or password incorrect. Try again.', 401)
             );
         }
 
-        // Email and password have matched. Can login.
+        // Email and password have matched. Can login. So Generate JWT.
+        const token = jwt.sign(
+            { userId: userWithEmail.id, email: userWithEmail.email },
+            SECRET_KEYS.JWT_SECRET_KEY,
+            { expiresIn: '1h' }
+        );
 
-        // TODO: response also exposes password. Need to remove password from response.
         return res
             .status(200)
             .json({
-                message: 'Logged in.',
-                user: userWithEmail.toObject({ getters: true }),
+                userId:userWithEmail.id,
+                email:userWithEmail.email, 
+                token: token,
             });
     } catch (err) {
         return next(

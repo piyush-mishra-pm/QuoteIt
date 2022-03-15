@@ -106,6 +106,7 @@ function UpdateQuote() {
                 }),
                 {
                     'Content-Type': 'application/json',
+                    Authorization : `Bearer ${auth.token}`
                 }
             );
             // Redirect, if correctly submitted the updated quote.

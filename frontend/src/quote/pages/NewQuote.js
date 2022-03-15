@@ -54,7 +54,10 @@ function NewQuote(){
             await sendRequest(
                 'http://localhost:4000/api/v1/quotes',
                 'POST',
-                formData
+                formData,
+                {// Putting JWT Token in authorization header.
+                    Authorization: `Bearer ${auth.token}`,
+                }
             );
             // If successfully created, then redirect the user to home page.
             history.push('/');

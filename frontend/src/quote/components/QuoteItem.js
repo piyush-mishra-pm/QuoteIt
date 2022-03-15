@@ -35,8 +35,14 @@ function QuoteItem(props) {
     async function confirmDeleteHandler(){
         setShowDeleteModal(false);
         try{
-            await sendRequest(`http://localhost:4000/api/v1/quotes/${props.id}`,'DELETE');
-            props.onDelete(props.id);
+            await sendRequest(
+                `http://localhost:4000/api/v1/quotes/${props.id}`,
+                'DELETE',
+                null,
+                {
+                    Authorization: `Bearer ${auth.token}`
+                });
+                props.onDelete(props.id);
 
         }catch(err){
 
