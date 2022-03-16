@@ -171,9 +171,12 @@ const deleteQuote = async (req, res, next) => {
 
         const sess = await mongoose.startSession();
         sess.startTransaction();
-        await quote.remove({ session: sess });
+        await quote.remove({ validateModifiedOnly: true, session: sess });
         quote.creatorId.quotes.pull(quote);
-        await quote.creatorId.save({ session: sess });
+        await quote.creatorId.save({
+            validateModifiedOnly: true,
+            session: sess,
+        });
         await sess.commitTransaction();
 
         fs.unlink(quoteImagePath, err => {

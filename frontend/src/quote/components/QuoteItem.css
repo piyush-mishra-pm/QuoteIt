@@ -29,6 +29,11 @@
   margin: 0 0 0.5rem 0;
 }
 
+.quote-item__info h3{
+  font-style: italic;
+  font-weight: bold;
+}
+
 .quote-item__actions {
   padding: 1rem;
   text-align: center;
