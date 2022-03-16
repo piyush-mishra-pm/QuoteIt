@@ -86,7 +86,10 @@ const createQuote = async (req, res, next) => {
         sess.startTransaction();
         await createdQuote.save({session: sess});
         user.quotes.push(createdQuote);
-        await user.save({session: sess});
+        await user.save({
+            validateModifiedOnly: true,
+            session: sess,
+        });
         await sess.commitTransaction();
 
         return res.status(201).json({ quote:createdQuote });

@@ -1,16 +1,19 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,400;0,900;1,100&display=swap');
+
+/* Default React styles.*/
 
 * {
   box-sizing: border-box;
 }
 
 html {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Raleway', sans-serif;
+  color: var(--color--text);
 }
 
 body {
   margin: 0;
-  background: #4d4d4d;
+  background: var(--color-grey-bg-300);
 }
 
 .slide-in-left-enter {
@@ -39,4 +42,78 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Global CSS variables and Resets.*/
+
+:root {
+    /* DEFINING CSS-VARIABLES: */
+    /* COLORS */
+    --color--accent1-dark-100: hsla(184, 95%, 17%, 1);
+    --color--accent1-light-100: hsla(180, 100%, 22%, 1);
+    --color--accent1-light-50: hsla(180, 80%, 30%, .6);
+    --color--caution-100: hsla(32, 88%, 54%, 1);
+    --color--danger-100: hsla(21, 96%, 43%, 1);
+    --color--danger-200: hsla(21, 96%, 20%, 1);
+    --color--light-100: hsla(10, 50%, 91%, 1);
+    --color--dark-100: hsla(46, 81%, 2%, 1); 
+    --color--accent1-dark-200: hsla(184, 10%, 15%, 1);
+    --color-dark-transparent-100: hsla(46, 81%, 2%, .70);
+    --color-grey-300: hsla(39, 1%, 60%, 1); 
+    --color-grey-bg-300: hsla(39, 1%, 60%, 1);
+
+    /* Text color */
+    --color--text: hsla(184, 95%, 7%, 1);
+    --color--text-accent: hsla(32, 88%, 70%, 1);
+    
+    /* Global Resets*/
+    margin: 0;
+    padding: 0;
+}
+
+/* other Global Resets */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+body{
+    /* Default Font properties */
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+    font-family: var(--font-family-text);
+    font-size: var(--font-size-300);
+    color: var(--color-white-300);
+}
+
+/* Default List style*/
+ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Stops animation while window is resized */ 
+.resize-animation-stopper * {
+  animation: none !important;
+  transition: none !important;
+}
+
+a:-webkit-any-link{
+    text-decoration: none;
+    color: inherit;
 }

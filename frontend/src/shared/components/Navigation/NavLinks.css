@@ -24,7 +24,7 @@
 .nav-links-list a:hover,
 .nav-links-list a:active,
 .nav-links-list a.active {
-  background: #f8df00;
+  background: var(--color--caution-100);
   border-color: #292929;
   color: #292929;
 }
@@ -70,7 +70,7 @@
   
   .nav-links-list button:hover,
   .nav-links-list button:active {
-    background: #f8df00;
+    background: var(--color--caution-100);
     color: #292929;
   }
 }

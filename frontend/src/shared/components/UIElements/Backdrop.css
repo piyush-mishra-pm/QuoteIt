@@ -1,3 +1,4 @@
+/*Used in modal backgrounds to block click throughs, when showing a pop up modal.*/
 .backdrop {
   position: fixed;
   top: 0;

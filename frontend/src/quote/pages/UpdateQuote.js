@@ -134,6 +134,19 @@ function UpdateQuote() {
                         initialValid={true}
                     />
                     <Input
+                        id="authorName"
+                        element="input"
+                        label="Author name"
+                        validators={[
+                            Validators.MINLENGTH(5),
+                            Validators.MAXLENGTH(100),
+                        ]}
+                        errorText="Name can be 100 chars long, or X mb in size."
+                        onInput={inputHandler}
+                        initialValue={loadedQuote.authorName}
+                        initialValid={true}
+                    />
+                    <Input
                         id="description"
                         element="textarea"
                         label="Your Reflection"
@@ -146,19 +159,7 @@ function UpdateQuote() {
                         initialValue={loadedQuote.description}
                         initialValid={true}
                     />
-                    <Input
-                        id="authorName"
-                        element="input"
-                        label="Your Reflection"
-                        validators={[
-                            Validators.MINLENGTH(5),
-                            Validators.MAXLENGTH(100),
-                        ]}
-                        errorText="Name can be 100 chars long, or X mb in size."
-                        onInput={inputHandler}
-                        initialValue={loadedQuote.authorName}
-                        initialValid={true}
-                    />{/* TODO: Image upload support needed here. */}
+                    {/* TODO: Image upload support needed here. */}
                     {/*<Input
                         id="image"
                         element="input"
