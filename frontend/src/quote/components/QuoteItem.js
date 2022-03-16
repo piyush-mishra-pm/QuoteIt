@@ -12,17 +12,17 @@ import './QuoteItem.css';
 
 function QuoteItem(props) {
     const auth = useContext(AuthContext);
-    const [showCommentsModal, setShowCommentsModal] = useState(false);
+    //const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const {isLoading, error, sendRequest, clearErrorHandler} = useHttpClient();
 
-    function openCommentsHandler() {
+    /*function openCommentsHandler() {
         setShowCommentsModal(true);
     }
 
     function closeCommentsHandler() {
         setShowCommentsModal(false);
-    }
+    }*/
 
     function showDeleteModalHandler(){
         setShowDeleteModal(true);
@@ -54,7 +54,7 @@ function QuoteItem(props) {
             <ErrorModal error={error} onClear={clearErrorHandler} />
             {/* Comments Modal (Rendered in separate Portal).
                 Shows comments on the associated Quote-Item. */}
-            <Modal
+            {/*<Modal
                 show={showCommentsModal}
                 onCancel={closeCommentsHandler}
                 header={props.quote}
@@ -65,7 +65,7 @@ function QuoteItem(props) {
                 <div className="quote-comments-container">
                     <h2>Comments list goes here.</h2>
                 </div>
-            </Modal>
+            </Modal>*/}
 
             {/* Confirm Delete Modal (Rendered in separate Portal).
                 Confirms whether user really wishes to delete quote. */}
@@ -97,10 +97,10 @@ function QuoteItem(props) {
                         <p>{props.description}</p>
                     </div>
                     <div className="quote-item__actions">
-                        {auth.isLoggedIn && <Button inverse>Like</Button>}
+                        {/*{auth.isLoggedIn && <Button inverse>Like</Button>}
                         <Button inverse onClick={openCommentsHandler}>
                             Show Comments
-                        </Button>
+                        </Button>*/}
                         {auth.isLoggedIn && auth.userId === props.creatorId  && <Button to={`/quotes/${props.id}`}>Edit</Button>}
                         {auth.isLoggedIn && auth.userId === props.creatorId && <Button danger onClick={showDeleteModalHandler}>Delete</Button>}
                     </div>

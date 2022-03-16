@@ -35,9 +35,9 @@ function Navigation(props) {
                     <span />
                     <span />
                 </button>
-                <h1 className="navigation__title">
-                    <Link to="/">Your Quotes</Link>
-                </h1>
+                <h2 className="navigation__title">
+                    <Link to="/">Quote-It</Link>
+                </h2>
                 <nav className="navigation__header-nav">
                     <NavLinks />
                 </nav>
