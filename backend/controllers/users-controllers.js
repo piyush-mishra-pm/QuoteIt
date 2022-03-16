@@ -21,7 +21,7 @@ const signup = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next (new ErrorObject('Invalid inputs!', 422));
     }
-    const { name, email, password, image } = req.body;
+    const { name, email, password } = req.body;
 
     try{
 
@@ -68,8 +68,7 @@ const login = async (req, res, next) => {
                 )
             );
         }
-
-        // TODO: encrypt the password supplied so that can be compared to encrypted stored password.
+        
         let ifPasswordMatches = await bcrypt.compare(password, userWithEmail.password);
         
         // password matches stored password.

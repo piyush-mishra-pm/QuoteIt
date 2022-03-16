@@ -4,7 +4,7 @@ const ErrorObject = require('../util/error-object');
 const SECRET_KEYS = require('../config/SECRET_KEYS');
 
 module.exports = (req,res,next)=>{
-    // When browser creates an OPTIONS request just before making actual POST requests.
+    // When browser creates an OPTIONS request just before making actual non-GET requests ()like POST, PATCH, DELETE).
     if(req.method==='OPTIONS'){
         return next();
     }

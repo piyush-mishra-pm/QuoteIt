@@ -61,10 +61,10 @@ const createQuote = async (req, res, next) => {
         return next(new ErrorObject('Invalid inputs!', 422));
     }
     try{
-        const { quote, description, creatorId, authorName } = req.body;
+        const { quote, description, authorName } = req.body;
 
         // Only when the creator actually exists in DB, we can then create the quote.
-        const user = await User.findById(creatorId);
+        const user = await User.findById(req.userData.userId);
 
         if(!user) {
             return next(new ErrorObject('Could not find user for provided creatorId',404));
@@ -115,8 +115,7 @@ const updateQuote = async(req, res, next) => {
             ));
         }
 
-        // is the creator the same as the authenticated user.
-        // So prevent a authenticated user which is not the creator of the quote.
+        // Is the creator the same as the authenticated user? Authenticated user is not authorised to edit someone else's quote.
         if (quoteToUpdate.creatorId.toString() !== req.userData.userId) {
             return next(
                 new ErrorObject(

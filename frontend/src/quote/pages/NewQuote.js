@@ -48,7 +48,6 @@ function NewQuote(){
             const formData = new FormData();
             formData.append('quote', formState.inputs.quote.value);
             formData.append('description', formState.inputs.description.value);
-            formData.append('creatorId', auth.userId);
             formData.append('authorName', formState.inputs.authorName.value);
             formData.append('image', formState.inputs.image.value);
             await sendRequest(

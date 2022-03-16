@@ -5,13 +5,13 @@ let logoutTimer;
 function useAuth(){
     const [token, setToken] = useState(false);
     const [tokenExpiryDateState, setTokenExpiryDateState] = useState();
-    const [userId, setUserId] = useState();
+    const [userId, setUserId] = useState(); //useState(false);
 
     const login = useCallback((uid, token, expirationDateStored) => {
         setToken(token);
         setUserId(uid);
 
-        // 1hr token expiry time:
+        // 1hr token expiry time or default to expiry time present in storage:
         const tokenExpiryDate =
             expirationDateStored ||
             new Date(new Date().getTime() + 1000 * 60 * 60);
@@ -50,9 +50,9 @@ function useAuth(){
     // Use effect occurs after the render cycle.
     // Only runs once, after the component mounts.
     useEffect(() => {
-        const storedUserData = JSON.parse(localStorage.getItem('userDate'));
+        const storedUserData = JSON.parse(localStorage.getItem('userData'));
 
-        // Is there any stored data?
+        // Is there any stored data and has the token not expired yet?
         if (
             storedUserData &&
             storedUserData.token &&
