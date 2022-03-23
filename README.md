@@ -1,6 +1,6 @@
-# Quote-It
+# **Quote-It**
 
-A platform where people can share their reflections on Quotes and where people can react on them.
+_A platform where people can share their reflections on Quotes and where people can react on them._
 
 A user can add a quote, their reflection on the quote and a relevant image. Other users can then view the quote, user's reflection on the quote and the image, and then users can react with comments and likes.
 
@@ -50,3 +50,24 @@ Video Walkthorugh of UX:
   - most liked,
   - most commented,
 - List all quotes of a user with similar pagination, sorting and filtering as above.
+
+---
+---
+
+## **How to Run**:
+Prerequisites: needs Node v.17, and MongoDB pre-installed.
+
+To run the backend node server on port 4000, in development mode, type following in the command line (assuming your current working directory is this repo).
+```
+cd ./backend/
+npm install
+npm run dev
+```
+
+To run the frontend ReactJS server on port 3000 type following in the command line (assuming your current working directory is this repo).
+
+```
+cd ./frontend/
+npm install
+npm start
+```
