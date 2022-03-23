@@ -9,7 +9,10 @@ A user can add a quote, their reflection on the quote and a relevant image. Othe
 ---
 ---
 
-## **Frontend Walkthrough:**
+## **Frontend Walkthrough:** 
+
+[![Video Walkthrough](https://img.youtube.com/vi/hXLodKNI_GY/maxresdefault.jpg)](https://youtu.be/hXLodKNI_GY)
+
 1. Browsing content unauthenticated and responsive menu design
 
 ![Browsing content unauthenticated and responsive menu design](https://drive.google.com/uc?export=view&id=17m93-AxQbInUQlEI2ED346K_V-70Z-Uw)
