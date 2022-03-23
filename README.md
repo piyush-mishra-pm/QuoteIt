@@ -29,14 +29,13 @@ Video Walkthorugh of UX:
 <br/>
 
 **Features**:
-- User Authentication,
+- **3 tiered** architecture (Frontend server hosting react SPA, backend server hosting node backend, and MongoDB cloud DB).
+- User Authentication using **Json Web Tokens**, ensuring stateless authentication for SPAs using REST-APIs.
 - CRUD for post, containing: quote, reflection on the quote, and a relevant image on the quote or reflection.
-- Other users can react on the post using like and comments.
+- Other users can react on the post using like and comments. (in progress).
 - All the quotes-reflections created by a user can be seen on user's wall.
 - All users are also available as a public list.
-
-
-
+- React details: Reuses code by making components and ccustom hooks. Uses Context API for providing users authentication details throughout the SPA. Usage of states, effects and callbacks hooks too.
 
 ---
 ---
