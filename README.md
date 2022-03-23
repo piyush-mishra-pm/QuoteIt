@@ -28,20 +28,21 @@ Video Walkthorugh of UX:
 ---
 <br/>
 
-**Features**:
+## **Overall Features**:
 - **3 tiered** architecture (Frontend server hosting react SPA, backend server hosting node backend, and MongoDB cloud DB).
 - User Authentication using **Json Web Tokens**, ensuring stateless authentication for SPAs using REST-APIs.
-- CRUD for post, containing: quote, reflection on the quote, and a relevant image on the quote or reflection.
-- Other users can react on the post using like and comments. (in progress).
+- **CRUD** for post, containing: quote, reflection on the quote, and a relevant image on the quote or reflection.
 - All the quotes-reflections created by a user can be seen on user's wall.
 - All users are also available as a public list.
-- React details: Reuses code by making components and ccustom hooks. Uses Context API for providing users authentication details throughout the SPA. Usage of states, effects and callbacks hooks too.
+- **React SPA***: Reuses code by making components and **custom hooks**. Uses **Context** for providing users authentication details throughout the SPA. Usage of **states, effects and callbacks hooks** too.
+- **Node backend**: **Model-View-Controller** architecture, with clearly separated routes for users and quotes. Created **custom middlewares** authentication and **image upload**. Files of image are uploaded on node-backend server, and deleted when relevant user or post gets deleted.
+- **MongoDB**: Uses **MongoDB Atlas** (Cloud deployed MongoDB). Uses **Transactions** to ensure that when a user post gets created/deleted, then the user's list of post is updated as well. **Mongoose** for creating schema and managing MongoDB commands.
 
 ---
 ---
 <br/>
 
-**TODO**:
+## **TODO**:
 - Likes and Comments on posts.
 - Mark Favourite Quotes.
 - Pages to list all the quotes on website with filter options:
